@@ -14,6 +14,22 @@ pub extern "C" fn _start() -> ! {
 
     rs_os::init();
 
+    use x86_64::registers::control::Cr3;
+
+    let (level_4_page_table, _) = Cr3::read();
+    println!(
+        "Level 4 page table at: {:?}",
+        level_4_page_table.start_address()
+    );
+
+    // let ptr = 0x204f88 as *mut u32;
+
+    // unsafe { let x = *ptr; }
+    // println!("read worked"); // Ok
+
+    // unsafe { *ptr = 42; }
+    // println!("write worked"); // Page fault, read only (because code page)
+
     #[cfg(test)]
     test_main();
 
