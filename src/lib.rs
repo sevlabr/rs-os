@@ -4,6 +4,8 @@
 #![feature(abi_x86_interrupt)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
+// enable mut refs in const fn for linked_list allocator
+#![feature(const_mut_refs)]
 
 use core::panic::PanicInfo;
 
