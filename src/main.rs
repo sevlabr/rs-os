@@ -10,6 +10,7 @@ use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 use rs_os::println;
+use rs_os::task::{simple_executor::SimpleExecutor, Task};
 
 entry_point!(kernel_main);
 
@@ -51,6 +52,10 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         Rc::strong_count(&cloned_reference)
     );
 
+    let mut executor = SimpleExecutor::new();
+    executor.spawn(Task::new(example_task()));
+    executor.run();
+
     #[cfg(test)]
     test_main();
 
@@ -70,6 +75,15 @@ fn panic(info: &PanicInfo) -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     rs_os::test_panic_handler(info)
+}
+
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {}", number);
 }
 
 #[test_case]
