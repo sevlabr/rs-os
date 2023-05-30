@@ -10,7 +10,7 @@ use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 use rs_os::println;
-use rs_os::task::{simple_executor::SimpleExecutor, Task};
+use rs_os::task::{executor::Executor, keyboard, Task};
 
 entry_point!(kernel_main);
 
@@ -52,15 +52,13 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         Rc::strong_count(&cloned_reference)
     );
 
-    let mut executor = SimpleExecutor::new();
-    executor.spawn(Task::new(example_task()));
-    executor.run();
-
     #[cfg(test)]
     test_main();
 
-    println!("It did not crash!");
-    rs_os::hlt_loop();
+    let mut executor = Executor::new();
+    executor.spawn(Task::new(example_task()));
+    executor.spawn(Task::new(keyboard::print_keypresses()));
+    executor.run();
 }
 
 /// This function is called on panic.
